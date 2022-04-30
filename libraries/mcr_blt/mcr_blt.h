@@ -17,12 +17,15 @@
 
 #include <Arduino.h>
 
+// =====================================================================
+// PROTOTYPES
 
 /**
- * @brief Starts serial communication
+ * @brief 
  * 
+ * @param baudrate 
  */
-void bluetooth_setup();
+void bluetooth_setup(int baudrate);
 
 /**
  * @brief 
@@ -35,8 +38,6 @@ void bluetooth_send();
  * 
  */
 void bluetooth_recieve();
-
-
 
 
 #endif

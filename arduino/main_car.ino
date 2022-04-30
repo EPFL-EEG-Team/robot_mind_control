@@ -14,11 +14,15 @@
 #include "eeg.h"
 #include "emg.h"
 #include "mcr_blt.h"
+#include <SoftwareSerial.h>
 
 // ==============================================================================
 
+#define TX 3
+#define RX 2
+#define BAUDRATE 9600
 
-
+SoftwareSerial Bluetooth(TX, RX)
 // ==============================================================================
 
 /**

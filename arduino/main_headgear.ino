@@ -15,11 +15,14 @@
 #include "eeg.h"
 #include "emg.h"
 #include "mcr_blt.h"
+#include <SoftwareSerial.h>
 
 // ==============================================================================
 
-#define EMG_PIN 9600
 #define EEG_PIN 115200
+
+#define BAUDRATE 9600
+
 
 // ==============================================================================
 
@@ -31,7 +34,7 @@
 void setup()
 {
     // setup the EMG recording
-    emg_setup(EMG_PIN); 
+    emg_setup(BAUDRATE); 
 
     // setup the EEG recording
     eeg_setup(EEG_PIN);
