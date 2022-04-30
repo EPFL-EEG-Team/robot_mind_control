@@ -5,7 +5,7 @@
 
 ## Setup
 
-###Bluetooth modules
+### Bluetooth modules
 
 #### Wiring
 
