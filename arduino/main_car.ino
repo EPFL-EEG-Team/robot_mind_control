@@ -17,10 +17,12 @@
 #include <SoftwareSerial.h>
 
 // ==============================================================================
+// MACROS
 
 #define TX 3
 #define RX 2
-#define BAUDRATE 9600
+#define SERIAL_BAUDRATE 9600
+#define BLUETOOTH_BAUDRATE 9600
 
 SoftwareSerial Bluetooth(TX, RX)
 // ==============================================================================
