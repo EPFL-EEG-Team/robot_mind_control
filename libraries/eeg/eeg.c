@@ -10,5 +10,5 @@
  */
 
 #include "eeg.h"
-
+#include <Arduino.h>
 

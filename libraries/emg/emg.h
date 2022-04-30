@@ -14,5 +14,24 @@
 
 #include <Arduino.h>
 
+/**
+ * @brief 
+ * 
+ * @param serial_pin 
+ */
+void emg_setup(int serial_pin);
+
+/**
+ * @brief 
+ * 
+ */
+void emg_record();
+
+/**
+ * @brief 
+ * 
+ */
+void emg_encode();
+
 
 #endif

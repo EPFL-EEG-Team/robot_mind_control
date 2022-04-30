@@ -9,8 +9,43 @@
  * 
  */
 
+// ==============================================================================
+// LIBRARIES
+
 #include "eeg.h"
 #include "emg.h"
+#include "mcr_blt.h"
 
-void setup() {}
-void loop() {}
+// ==============================================================================
+
+#define EMG_PIN 9600
+#define EEG_PIN 115200
+
+// ==============================================================================
+
+
+/**
+ * @brief 
+ * 
+ */
+void setup()
+{
+    // setup the EMG recording
+    emg_setup(EMG_PIN); 
+
+    // setup the EEG recording
+    eeg_setup(EEG_PIN);
+
+    // setup the bluetooth communication
+
+
+}
+
+/**
+ * @brief 
+ * 
+ */
+void loop()
+{
+
+}

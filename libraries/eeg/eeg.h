@@ -15,6 +15,24 @@
 
 #include <Arduino.h>
 
+/**
+ * @brief 
+ * 
+ * @param pin 
+ */
+void eeg_setup(int serial pin);
 
+/**
+ * @brief 
+ * 
+ * @param period 
+ */
+void eeg_record(int period);
+
+/**
+ * @brief 
+ * 
+ */
+void eeg_encode();
 
 #endif
