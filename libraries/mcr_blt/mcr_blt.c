@@ -49,18 +49,24 @@
 // FUNCTIONS DEFINITION
 
 
-void bluetooth_setup(int serial_baudrate, int bluetooth_baudrate, int auto_setup)
+void bluetooth_setup(int serial_baudrate, int bluetooth_baudrate, int auto_setup, HardwareSerial* port)
 {
     if(serial_baudrate <= 0 || bluetooth_baudrate <= 0){
         // TODO add debug macro
         Serial.println("invalid baudrate");
         return;
     }
+    
+    if(port == NULL){
+        // TODO add debug macro
+        Serial.println("undefined HardwareSerial");
+        return;        
+    }
 
     if(auto){
     // auto AT command setup
     Serial.begin(serial_baudrate);
-    Bluetooth.begin(bluetooth_baudrate);
+    port.begin(bluetooth_baudrate);
 
     if()
 

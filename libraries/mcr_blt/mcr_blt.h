@@ -27,8 +27,9 @@
  * @param bluetooth_baudrate
  * @param auto_setup Specifies if the AT-commands to setup the bluetooth modules
  *                   are entered by the user or automatically entered in the script.
+ * @param port
  */
-void bluetooth_setup(int serial_baudrate, int bluetooth_baudrate, int auto_setup);
+void bluetooth_setup(int serial_baudrate, int bluetooth_baudrate, int auto_setup, HardwareSerial* port);
 
 /**
  * @brief 
