@@ -12,9 +12,7 @@
 // ==============================================================================
 // LIBRARIES
 
-#include "eeg.h"
-#include "emg.h"
-#include "mcr_blt.h"
+
 #include <SoftwareSerial.h>
 
 // ==============================================================================
@@ -33,13 +31,6 @@
  */
 void setup()
 {
-    // setup the EMG recording
-    emg_setup(BAUDRATE); 
-
-    // setup the EEG recording
-    eeg_setup(EEG_PIN);
-
-    // setup the bluetooth communication
 
 
 }
