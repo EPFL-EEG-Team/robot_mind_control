@@ -105,8 +105,8 @@ if __name__ == "__main__":
     # ROS node initialzation
     rospy.init_node("Listener", anonymous=False)
     # ROS publishers definition
-    EEG_publisher = rospy.Publisher("eeg", Float32MultiArray, queue_size=1)
-    EMG_publisher = rospy.Publisher("emg", Float32, queue_size=1)
+    EEG_publisher = rospy.Publisher("EEG", Float32MultiArray, queue_size=1)
+    EMG_publisher = rospy.Publisher("EMG", Float32, queue_size=1)
     IMU_publisher = rospy.Publisher("IMU", Float32, queue_size=1)
 
 
