@@ -22,7 +22,7 @@ from std_msgs.msg import Float32MultiArray, Float32
 # ==========================================================
 # Some constants
 
-COM_PORT   = "/dev/rfcomm2"
+COM_PORT   = "/dev/rfcomm0"
 BAUDRATE   = 115200
 ENCODING   = "ascii"
 PARSE_CHAR = "_"

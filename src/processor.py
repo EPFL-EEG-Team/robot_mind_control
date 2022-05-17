@@ -34,14 +34,14 @@ from std_msgs.msg import Float32MultiArray, Float32
 
 # ------------------------------------------
 # Bluetooth
-COM_PORT   = "/dev/rfcomm0"
+COM_PORT   = "/dev/rfcomm1"
 BAUDRATE   = 9600
 
 # ------------------------------------------
 # EEG
 list_types = ['Relax', 'Focus']
 NUM_TRIALS = 3
-NUM_ITER_PER_TYPE = 40
+NUM_ITER_PER_TYPE = 80
 
 baseline_frames = NUM_TRIALS * len(list_types) * NUM_ITER_PER_TYPE
 
@@ -187,10 +187,10 @@ def process_EEG(msg):
     # ===========================
     
     # string += struct.pack('f', float(speed))
-    # send = struct.pack('B', speed)
+    send = struct.pack('B', speed)
     # print(send)
      
-    # controller.write(send)
+    controller.write(send)
 
 
 def process_EMG(msg):
