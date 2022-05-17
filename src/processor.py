@@ -24,6 +24,7 @@ import serial           # Pyserial library
 import rospy            # ROS Noetic
 import time
 import numpy as np
+import struct
 
 from sklearn import svm
 from std_msgs.msg import Float32MultiArray, Float32
@@ -33,8 +34,8 @@ from std_msgs.msg import Float32MultiArray, Float32
 
 # ------------------------------------------
 # Bluetooth
-COM_PORT   = "COM11"
-BAUDRATE   = 115200
+COM_PORT   = "/dev/rfcomm0"
+BAUDRATE   = 9600
 
 # ------------------------------------------
 # EEG
@@ -48,7 +49,7 @@ baseline_frames = NUM_TRIALS * len(list_types) * NUM_ITER_PER_TYPE
 delta_speed = 1
 
 # Fast-Fourier Transform
-length  = 100
+length  = 99
 fftfreq = np.fft.fftfreq(length, d = 2 / 1000)[1:10] # data interval is 2ms
 
 num_samples = 10                                     # number of frames for mean
@@ -148,6 +149,7 @@ def get_speed(data):
         speed_array.append(speed)
         print("Current state: " + list_types[pred] + ", Speed: " + str(speed), end= "\r")
 
+    print(speed_array[-1])
     return speed_array[-1]
 
 EMG_baseline_acquisition_table = []
@@ -176,9 +178,19 @@ def process_EEG(msg):
     '''
         callback function for EEG topic
     '''
-    values = msg.data
-    speed  = get_speed(values) 
-    controller.write(speed)
+    values = np.array(msg.data)
+
+    speed  = get_speed(values)
+    # ===========================
+    # debug
+    print(speed)
+    # ===========================
+    
+    # string += struct.pack('f', float(speed))
+    # send = struct.pack('B', speed)
+    # print(send)
+     
+    # controller.write(send)
 
 
 def process_EMG(msg):

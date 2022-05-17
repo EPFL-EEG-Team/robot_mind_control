@@ -22,7 +22,7 @@ from std_msgs.msg import Float32MultiArray, Float32
 # ==========================================================
 # Some constants
 
-COM_PORT   = "COM11"
+COM_PORT   = "/dev/rfcomm2"
 BAUDRATE   = 115200
 ENCODING   = "ascii"
 PARSE_CHAR = "_"
@@ -42,10 +42,11 @@ def connect():
             print("Unable to connect to remote device. Retrying...")
             time.sleep(5)
             
-def process_EEG(data):
-    EEG_publisher.publish(data)
+def process_EEG(array):
+    EEG_publisher.publish(Float32MultiArray(data=array))
 
 def process_EMG(data):
+    print("publish_test")
     EMG_publisher.publish(data)
 
 def process_IMU(data):
@@ -68,23 +69,29 @@ def retrieve_data(listener):
         if (listener.in_waiting > 0):
 
             data = listener.readline().decode(ENCODING)
-            (msg_type, value) = data.split(PARSE_CHAR)
-
-            if (msg_type == "EEG"):
-
+            # print(data)
+            (value, msg_type) = data.split(PARSE_CHAR)
+            print(msg_type)
+            # print(value)
+            listener.flush()
+            if (msg_type == "EEG\n"):
+                print("debug")
                 if (value == "BEGIN"):
                     # Resets the array
+                    print("EEG_BEGIN")
                     EEG_data = []
 
                 elif (value == "END"):
+                    print("EEG_END")
                     process_EEG(EEG_data)
 
                 else:
                     # convert string to float
+                    print("debug")
                     value = float(value)
                     EEG_data.append(value)
 
-            elif (msg_type == "EMG"):
+            elif (msg_type == "EMG\n"):
                 # convert string to float
                 value = float(value)
                 process_EMG(value)

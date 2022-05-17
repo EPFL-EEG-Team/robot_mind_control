@@ -22,7 +22,9 @@
 #define SERIAL_BAUDRATE 9600
 #define BLUETOOTH_BAUDRATE 9600
 
-SoftwareSerial Bluetooth(TX, RX)
+SoftwareSerial Bluetooth(TX, RX);
+
+int Data = 0;
 // ==============================================================================
 
 /**
@@ -32,6 +34,9 @@ SoftwareSerial Bluetooth(TX, RX)
 void setup()
 {
 
+    Bluetooth.begin(9600);
+    Serial.begin(9600);
+
 }
 
 /**
@@ -40,5 +45,11 @@ void setup()
  */
 void loop()
 {
-
+    if (Bluetooth.available()){ //wait for data received
+        Data=Bluetooth.read();
+    }
+    delay(100);
 }
+
+
+
