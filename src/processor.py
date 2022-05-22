@@ -27,8 +27,9 @@ import numpy as np
 import struct
 
 from sklearn import svm
-from std_msgs.msg import Float32MultiArray, Float32
+from std_msgs.msg import Float32MultiArray, Float32, Int32
 
+# from listener import EEG_data
 # ==========================================================
 # setup
 
@@ -41,7 +42,7 @@ BAUDRATE   = 9600
 # EEG
 list_types = ['Relax', 'Focus']
 NUM_TRIALS = 3
-NUM_ITER_PER_TYPE = 80
+NUM_ITER_PER_TYPE = 30
 
 baseline_frames = NUM_TRIALS * len(list_types) * NUM_ITER_PER_TYPE
 
@@ -115,6 +116,7 @@ def get_speed(data):
         with baseline_acquisition() function.
 
     '''
+    print(data.shape)
     assert data.shape==(length,), "data size does not match"
     
     i = len(speed_array)
@@ -144,7 +146,7 @@ def get_speed(data):
         if speed > 255:
             speed = 255
         elif speed < 0:
-            speed = 0
+            speed = 40
 
         speed_array.append(speed)
         print("Current state: " + list_types[pred] + ", Speed: " + str(speed), end= "\r")
@@ -178,6 +180,9 @@ def process_EEG(msg):
     '''
         callback function for EEG topic
     '''
+
+    # global EEG_data
+
     values = np.array(msg.data)
 
     speed  = get_speed(values)
@@ -220,6 +225,9 @@ if __name__ == "__main__":
     rospy.Subscriber("EEG", Float32MultiArray, process_EEG)
     rospy.Subscriber("EMG", Float32, process_EMG)
     rospy.Subscriber("IMU", Float32, process_IMU)
+
+    # ROS publishers
+    reenable_pub = rospy.Publisher("EN", Int32,  queue_size=1)
 
     # connect to remote device
     controller = connect()

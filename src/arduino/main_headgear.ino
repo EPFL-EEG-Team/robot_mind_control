@@ -34,6 +34,9 @@ float f = 0.0;
 char c[50]  = {0}; //size of the number
 char type[3]= {0};
 
+int data_points = 0;
+//int enable = 1;
+
 // ==============================================================================
 
 /**
@@ -46,6 +49,7 @@ void setup()
     SerialBT.begin("E3K");
     Serial.begin(BLUETOOTH_BAUDRATE);
     prev = micros();
+//    enable = 1;
 }
 
 /**
@@ -54,19 +58,33 @@ void setup()
  */
 void loop()
 {
+
+//  if (data_points == 0){
+//    SerialBT.print("BEGIN_EEG\n");
+//  }
+//    
+
   now = micros();
   if(now - prev >= 2000){
-    prev = now;
-    
+    Serial.println("enabled");
+//    data_points += 1;
+
+//    if (data_points == 100){
+//      data_points = 0;
+////      enable = 0;
+//      SerialBT.print("END_EEG\n");
+//      delay(100);
+////      
+//    }else{
     f = analogRead(0);
     sprintf(c, "%g", f);
-    strcat(c, "_EMG\n");
-    Serial.println(c);
+    strcat(c, "_EEG\n");
     SerialBT.print(c);
-//    SerialBT.print('\n');
+          
+//    }
+    
+    
+    prev = now;
+
   }
-//  delay(10000);
 }
-
-
-

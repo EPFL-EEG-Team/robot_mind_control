@@ -17,7 +17,7 @@ import serial           # Pyserial library
 import rospy            # ROS Noetic
 import time
 
-from std_msgs.msg import Float32MultiArray, Float32
+from std_msgs.msg import Float32MultiArray, Float32, Int32
 
 # ==========================================================
 # Some constants
@@ -53,6 +53,9 @@ def process_IMU(data):
     IMU_publisher.publish(data)
 
 
+
+EEG_data = []    
+
 def retrieve_data(listener):
     '''
         Listens to the ESP32 board on the headgear and call functions
@@ -60,7 +63,7 @@ def retrieve_data(listener):
 
     '''
     # initializing the array that will contain EEG data
-    EEG_data = []  
+    global EEG_data  
 
 
     while (True):
@@ -69,37 +72,48 @@ def retrieve_data(listener):
         if (listener.in_waiting > 0):
 
             data = listener.readline().decode(ENCODING)
-            # print(data)
+            print(data)
             (value, msg_type) = data.split(PARSE_CHAR)
-            print(msg_type)
-            # print(value)
-            listener.flush()
+            
+            print(value, msg_type)
+            
+            
             if (msg_type == "EEG\n"):
-                print("debug")
-                if (value == "BEGIN"):
-                    # Resets the array
-                    print("EEG_BEGIN")
+                # if (value == "BEGIN"):
+                #     # Resets the array
+                #     print("EEG_BEGIN")
+                #     EEG_data = []
+                #     # listener.flushInput()
+
+                # elif (value == "END"):
+                    
+                #     print("EEG_END")
+                #     process_EEG(EEG_data)
+
+                # else:
+                # convert string to float
+                value = float(value)
+                EEG_data.append(value)
+                print(EEG_data)
+                if len(EEG_data) == 99:
+                    print("sent")
+                    process_EEG(EEG_data)
+                    # time.sleep(0.2)
+                    listener.flushInput()
                     EEG_data = []
 
-                elif (value == "END"):
-                    print("EEG_END")
-                    process_EEG(EEG_data)
-
-                else:
-                    # convert string to float
-                    print("debug")
-                    value = float(value)
-                    EEG_data.append(value)
 
             elif (msg_type == "EMG\n"):
                 # convert string to float
                 value = float(value)
                 process_EMG(value)
+                
 
             elif (msg_type == "IMU"):
                 # convert string to float
                 value = float(value)
                 process_IMU(value)
+
 
 
 
@@ -111,12 +125,16 @@ if __name__ == "__main__":
 
     # ROS node initialzation
     rospy.init_node("Listener", anonymous=False)
-    # ROS publishers definition
+
+    # ROS publishers
     EEG_publisher = rospy.Publisher("EEG", Float32MultiArray, queue_size=1)
     EMG_publisher = rospy.Publisher("EMG", Float32, queue_size=1)
     IMU_publisher = rospy.Publisher("IMU", Float32, queue_size=1)
 
+    # ROS Subscribers
+    # rospy.Subscriber("EN", Int32, reenable_callback)
 
     # Establish connection
     listener = connect()
+    
     retrieve_data(listener)
