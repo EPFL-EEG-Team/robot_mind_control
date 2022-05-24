@@ -79,18 +79,7 @@ def retrieve_data(listener):
             
             
             if (msg_type == "EEG\n"):
-                # if (value == "BEGIN"):
-                #     # Resets the array
-                #     print("EEG_BEGIN")
-                #     EEG_data = []
-                #     # listener.flushInput()
 
-                # elif (value == "END"):
-                    
-                #     print("EEG_END")
-                #     process_EEG(EEG_data)
-
-                # else:
                 # convert string to float
                 value = float(value)
                 EEG_data.append(value)

@@ -208,7 +208,11 @@ def process_IMU(msg):
     '''
         callback function for IMU topic
     '''
-    pass
+    # directly send to the car. No prior processing is necessary
+    # because the conversion to roll-pitch-yaw happens on the previous layer
+    # we could do it here as well. 
+    send = struct.pack('B', msg)
+    controller.write(send)
 
 
 
