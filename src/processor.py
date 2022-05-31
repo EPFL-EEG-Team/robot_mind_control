@@ -66,8 +66,11 @@ speed_array = []
 
 # ------------------------------------------
 # EMG
-EMG_BASELINE_ITERATION = 150
-EMG_THRESHOLD          = 0      # Difference between basline and recorded value
+EMG_BASELINE_ITERATION = 50
+EMG_THRESHOLD          = 20      # Difference between basline and recorded value
+
+EMG_baseline_acquisition_table = []
+EMG_baseline = -1
 
 # ------------------------------------------
 # IMU
@@ -151,16 +154,16 @@ def get_speed(data):
         speed_array.append(speed)
         print("Current state: " + list_types[pred] + ", Speed: " + str(speed), end= "\r")
 
-    print(speed_array[-1])
+    # print(speed_array[-1])
     return speed_array[-1]
 
-EMG_baseline_acquisition_table = []
-EMG_baseline = -1
+
 
 def get_orientation(data):
     '''
         EMG processing function
     '''
+    global EMG_baseline
     # baseline acquisition
     if (len(EMG_baseline_acquisition_table) < EMG_BASELINE_ITERATION):
         EMG_baseline_acquisition_table.append(data)
@@ -171,7 +174,9 @@ def get_orientation(data):
 
         # encoding
         if (data - EMG_baseline > EMG_THRESHOLD):
-            controller.write(1)
+            data = "EMG\n"
+
+            controller.write(bytes(data, 'ascii'))
         
 
     
@@ -188,21 +193,18 @@ def process_EEG(msg):
     speed  = get_speed(values)
     # ===========================
     # debug
-    print(speed)
+    # print(speed)
     # ===========================
-    
-    # string += struct.pack('f', float(speed))
-    send = struct.pack('B', speed)
-    # print(send)
+    data = "EEG_" + str(int(speed)).zfill(8) + "\n"
      
-    controller.write(send)
+    controller.write(bytes(data, 'ascii'))
 
 
 def process_EMG(msg):
     '''
         callback function for EMG topic
     '''
-    get_orientation(msg)
+    get_orientation(msg.data)
 
 def process_IMU(msg):
     '''
@@ -211,8 +213,10 @@ def process_IMU(msg):
     # directly send to the car. No prior processing is necessary
     # because the conversion to roll-pitch-yaw happens on the previous layer
     # we could do it here as well. 
-    send = struct.pack('B', msg)
-    controller.write(send)
+
+    data = "IMU_" + str(int(msg.data)).zfill(8) + "\n"
+
+    controller.write(bytes(data, 'ascii'))
 
 
 

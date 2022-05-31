@@ -1,8 +1,12 @@
 /**
  * @file main.ino
+ * 
  * @author Emile Janho Dit Hreich (emile.janhodithreich@epfl.ch)
+ * 
  * @brief The main arduino script to control the car through eeg, emg an
+ * 
  * @version 0.1
+ * 
  * @date 2022-04-22
  * 
  * @copyright Copyright (c) 2022
@@ -23,9 +27,8 @@
 #define SERIAL_BAUDRATE 9600
 #define BLUETOOTH_BAUDRATE 9600
 
-#define EEG_PIN 0
-#define EMG_PIN 0
-#define IMU_PIN 0
+#define EEG_PIN 33
+#define EMG_PIN 39
  
 // -----------------------------------------------
 // Bluetooth
@@ -45,17 +48,20 @@ int data_points = 0;
 // -----------------------------------------------
 // EMG
 
-float value = 0f;
+unsigned long now_EMG, prev_EMG;
+
+float value = 0;
 char emg[50]  = {0}; //size of the number
+
 
 // -----------------------------------------------
 // IMU
 BNO080 IMU;
 boolean isIMU = false;
 
-float roll  = 0f;
-float pitch = 0f;
-float yaw   = 0f;
+float roll  = 0;
+float pitch = 0;
+float yaw   = 0;
 
 char imu[50]  = {0}; //size of the number
 
@@ -75,6 +81,7 @@ void setup()
 
     // time
     prev = micros();
+    prev_EMG = micros();
 
     // IMU
     Wire.begin();
@@ -84,7 +91,7 @@ void setup()
       Serial.println("Continuing....");
     }else{
       Wire.setClock(400000); //Increase I2C data rate to 400kHz
-      myIMU.enableRotationVector(50); //Send data update every 50ms
+      IMU.enableRotationVector(50); //Send data update every 50ms
       Serial.println(F("IMU enabled"));
       Serial.println(F("Rotation vector enabled"));
       Serial.println(F("Output in form i, j, k, real, accuracy"));
@@ -101,6 +108,7 @@ void loop()
   // -----------------------------------------
   // EEG
   now = micros();
+  
   if(now - prev >= 2000){
     Serial.println("enabled");
 
@@ -115,37 +123,45 @@ void loop()
 
   // ------------------------------------------
   // IMU
-  if(isIMU == true){
-    //Look for reports from the IMU
-    if(IMU.dataAvailable()){
-        roll  = (IMU.getRoll()) * 180.0 / PI;   // Convert roll to degrees
-        pitch = (IMU.getPitch()) * 180.0 / PI;  // Convert pitch to degrees
-        yaw   = (IMU.getYaw()) * 180.0 / PI;    // Convert yaw / heading to degrees
+  // if(isIMU == true){
+  //   //Look for reports from the IMU
+  //   if(IMU.dataAvailable()){
+  //       roll  = (IMU.getRoll()) * 180.0 / PI;   // Convert roll to degrees
+  //       pitch = (IMU.getPitch()) * 180.0 / PI;  // Convert pitch to degrees
+  //       yaw   = (IMU.getYaw()) * 180.0 / PI;    // Convert yaw / heading to degrees
 
-        // DEBUG
-        Serial.print(roll, 1);
-        Serial.print(F(","));
-        Serial.print(pitch, 1);
-        Serial.print(F(","));
-        Serial.print(yaw, 1);
+  //       // DEBUG
+  //       Serial.print(roll, 1);
+  //       Serial.print(F(","));
+  //       Serial.print(pitch, 1);
+  //       Serial.print(F(","));
+  //       Serial.print(yaw, 1);
     
-        Serial.println();
-        // END DEBUG
+  //       Serial.println();
+  //       // END DEBUG
 
-        // !! Only considers the pitch but can be adapted to take everything into account
-        // it also depends on the placement of the board
-        sprintf(imu, "%g", pitch);
-        strcat(imu, "_IMU\n");
-        SerialBT.print(imu);
+  //       // !! Only considers the pitch but can be adapted to take everything into account
+  //       // it also depends on the placement of the board
+  //       sprintf(imu, "%g", pitch);
+  //       strcat(imu, "_IMU\n");
+  //       SerialBT.print(imu);
 
-    }
-  }
+  //   }
+  // }
 
   // ------------------------------------------
-  // EMG  
-  value = analogRead(EMG_PIN);
-  sprintf(emg, "%g", value);
-  strcat(emg, "_EMG\n");
-  SerialBT.print(emg);
+  // EMG 
+  now_EMG = micros();
+  if (now_EMG - prev_EMG >= 5000){
+      value = analogRead(EMG_PIN);
+      sprintf(emg, "%g", value);
+      strcat(emg, "_EMG\n");
+      SerialBT.print(emg);
+
+      prev_EMG = now_EMG;
+
+  }
+
+  
 
 }

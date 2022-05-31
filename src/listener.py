@@ -34,6 +34,7 @@ def connect():
         Establishes connection between device and ESP32 Board
     '''
     while (True):
+        # will try to listen on specified port (COM_PORT)
         try:
             listener = serial.Serial(COM_PORT, BAUDRATE, timeout = 1)
             print("Connection established")
@@ -46,7 +47,7 @@ def process_EEG(array):
     EEG_publisher.publish(Float32MultiArray(data=array))
 
 def process_EMG(data):
-    print("publish_test")
+    
     EMG_publisher.publish(data)
 
 def process_IMU(data):
@@ -72,10 +73,9 @@ def retrieve_data(listener):
         if (listener.in_waiting > 0):
 
             data = listener.readline().decode(ENCODING)
-            print(data)
+            # print(data)
             (value, msg_type) = data.split(PARSE_CHAR)
             
-            print(value, msg_type)
             
             
             if (msg_type == "EEG\n"):
@@ -83,9 +83,9 @@ def retrieve_data(listener):
                 # convert string to float
                 value = float(value)
                 EEG_data.append(value)
-                print(EEG_data)
+                # print(EEG_data)
                 if len(EEG_data) == 99:
-                    print("sent")
+                    # print("sent")
                     process_EEG(EEG_data)
                     # time.sleep(0.2)
                     listener.flushInput()
@@ -98,8 +98,10 @@ def retrieve_data(listener):
                 process_EMG(value)
                 
 
-            elif (msg_type == "IMU"):
+            elif (msg_type == "IMU\n"):
                 # convert string to float
+                print(value, msg_type)
+            
                 value = float(value)
                 process_IMU(value)
 
