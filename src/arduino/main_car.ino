@@ -15,7 +15,8 @@
 
 // ==============================================================================
 // LIBRARIES
-#include <Servo.h>
+#include <PWMServo.h>
+//#include <Servo_Hardware_PWM.h>
 #include <SoftwareSerial.h>
 #include <stdio.h>
 
@@ -37,29 +38,29 @@ enum EMG_State {
   STOP, FORWARD, BACKWARD
 };
 
-EMG_State state = STOP;
+EMG_State state = FORWARD;
 
 // --------------------------------------
 // Bluetooth
 
 #define TX 3
 #define RX 2
-#define SERIAL_BAUDRATE 115200
-#define BLUETOOTH_BAUDRATE 115200
+#define SERIAL_BAUDRATE 2400
+#define BLUETOOTH_BAUDRATE 2400
 
 SoftwareSerial Bluetooth(TX, RX);
 
 // --------------------------------------
 // Serial data
 
-// format: EEG_XXXXXXXX
-String rawData;
-String mode;
+String rawData = "";
 int data;
-
-int r     = 0;
-char read = 0;
-
+String mode;
+char read                    = 0;
+int r = 0;
+int valid_data = 0;
+// format: EEG_XXXXXXXX
+char str_data_retrieved[13] = {0};
 
 // --------------------------------------
 // servo
@@ -69,7 +70,7 @@ int servo_straight = 90;
 int servo_right    = 0;
 int servo_left     = 180;
 
-Servo servo;
+PWMServo servo;
 
 // ==============================================================================
 
@@ -94,15 +95,18 @@ void setup() {
 // turns the wheels full right
 void turnRight() {
   servo.write(servo_right);
+  delay(15);
 }
 
 // turns the wheels full left
 void turnLeft() {
   servo.write(servo_left);
+  delay(15);
 }
 
 void goStraight() {
   servo.write(servo_straight);
+  delay(15);
 }
 
 void changeSpeed(int speed) {
@@ -135,22 +139,25 @@ void loop() {
   digitalWrite(MOTOR_IN2, HIGH);
 
   // check if data is available
+
   if (Bluetooth.available()){ 
 
-    // retrieve data
     char a = Bluetooth.read();
     rawData.concat(a);
     r += 1;
     if (r == 13){
       r = 0;
       mode = rawData.substring(0, 3);
-      data = rawData.substring(4, rawData.length()).toInt();
-      rawData = "";
+      data = rawData.substring(4, 13).toInt();
+      rawData = String();
 
     }
     
+    Serial.println(mode);
+    Serial.println(data);
     
-    if (mode.equals("EEG") && state != STOP) {
+    if (mode == "EEG") {
+//      Serial.println("debug");
       if (state == FORWARD) {
         changeSpeed(data);
       } else if (state == BACKWARD) {
@@ -167,17 +174,33 @@ void loop() {
         changeSpeed(0); 
       } 
     } else if (mode.equals("IMU")) {
+      Serial.println("IMU");
       
-      if (data < -80) {
+      if (data < -40) {
+//        Serial.println("turning left");
         turnLeft();
-      } else if (data > 80) {
+      } else if (data > 40) {
         turnRight();  
       } else {
         goStraight();  
       }
+    }else if (r == 13){
+      
+      while(rawData != "EEG" && rawData != "EMG" && rawData != "IMU"){
+        rawData = String();
+        if (Bluetooth.available()>3){
+           rawData.concat(Bluetooth.read());
+           rawData.concat(Bluetooth.read());
+           rawData.concat(Bluetooth.read());
+        }
+
+      }
+      r = 3;
     }
     
   }
   
 
 }
+
+

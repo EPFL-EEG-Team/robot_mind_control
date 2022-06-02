@@ -42,7 +42,7 @@ BAUDRATE   = 9600
 # EEG
 list_types = ['Relax', 'Focus']
 NUM_TRIALS = 3
-NUM_ITER_PER_TYPE = 30
+NUM_ITER_PER_TYPE = 60 
 
 baseline_frames = NUM_TRIALS * len(list_types) * NUM_ITER_PER_TYPE
 
@@ -71,6 +71,8 @@ EMG_THRESHOLD          = 20      # Difference between basline and recorded value
 
 EMG_baseline_acquisition_table = []
 EMG_baseline = -1
+
+EMG_FLAG = 1
 
 # ------------------------------------------
 # IMU
@@ -164,6 +166,7 @@ def get_orientation(data):
         EMG processing function
     '''
     global EMG_baseline
+    global EMG_FLAG
     # baseline acquisition
     if (len(EMG_baseline_acquisition_table) < EMG_BASELINE_ITERATION):
         EMG_baseline_acquisition_table.append(data)
@@ -173,11 +176,14 @@ def get_orientation(data):
             EMG_baseline = np.mean(np.array(EMG_baseline_acquisition_table))
 
         # encoding
-        if (data - EMG_baseline > EMG_THRESHOLD):
-            data = "EMG\n"
-
+        if (data - EMG_baseline > EMG_THRESHOLD and EMG_FLAG == 1):
+            data = "EMG_00000000\n"
+            controller.reset_input_buffer()
             controller.write(bytes(data, 'ascii'))
-        
+            controller.flush()
+            EMG_FLAG = 0
+        elif(data == 0):
+            EMG_FLAG = 1
 
     
 
@@ -195,9 +201,11 @@ def process_EEG(msg):
     # debug
     # print(speed)
     # ===========================
+    
     data = "EEG_" + str(int(speed)).zfill(8) + "\n"
-     
+    controller.reset_output_buffer()
     controller.write(bytes(data, 'ascii'))
+    controller.flush()
 
 
 def process_EMG(msg):
@@ -214,9 +222,12 @@ def process_IMU(msg):
     # because the conversion to roll-pitch-yaw happens on the previous layer
     # we could do it here as well. 
 
+    # print(str(int(msg.data)).zfill(8))
     data = "IMU_" + str(int(msg.data)).zfill(8) + "\n"
 
+    controller.reset_output_buffer()
     controller.write(bytes(data, 'ascii'))
+    controller.flush()
 
 
 

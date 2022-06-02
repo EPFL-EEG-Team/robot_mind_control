@@ -24,7 +24,7 @@
 // ==============================================================================
 // MACROS and setup
 
-#define SERIAL_BAUDRATE 9600
+#define SERIAL_BAUDRATE 4800
 #define BLUETOOTH_BAUDRATE 9600
 
 #define EEG_PIN 33
@@ -59,6 +59,8 @@ char emg[50]  = {0}; //size of the number
 BNO080 IMU;
 boolean isIMU = false;
 
+unsigned long now_IMU, prev_IMU;
+
 float roll  = 0;
 float pitch = 0;
 float yaw   = 0;
@@ -82,6 +84,7 @@ void setup()
     // time
     prev = micros();
     prev_EMG = micros();
+    prev_IMU = micros();
 
     // IMU
     Wire.begin();
@@ -110,7 +113,7 @@ void loop()
   now = micros();
   
   if(now - prev >= 2000){
-    Serial.println("enabled");
+    Serial.println("EEG");
 
     f = analogRead(EEG_PIN);
     sprintf(c, "%g", f);
@@ -123,36 +126,41 @@ void loop()
 
   // ------------------------------------------
   // IMU
-  // if(isIMU == true){
-  //   //Look for reports from the IMU
-  //   if(IMU.dataAvailable()){
-  //       roll  = (IMU.getRoll()) * 180.0 / PI;   // Convert roll to degrees
-  //       pitch = (IMU.getPitch()) * 180.0 / PI;  // Convert pitch to degrees
-  //       yaw   = (IMU.getYaw()) * 180.0 / PI;    // Convert yaw / heading to degrees
+  now_IMU = micros();
+  
+  if(isIMU == true && now_IMU - prev_IMU >= 1000000){
+    //Look for reports from the IMU
+    if(IMU.dataAvailable()){
+       roll  = (IMU.getRoll()) * 180.0 / PI;   // Convert roll to degrees
+       pitch = (IMU.getPitch()) * 180.0 / PI;  // Convert pitch to degrees
+       yaw   = (IMU.getYaw()) * 180.0 / PI;    // Convert yaw / heading to degrees
 
-  //       // DEBUG
-  //       Serial.print(roll, 1);
-  //       Serial.print(F(","));
-  //       Serial.print(pitch, 1);
-  //       Serial.print(F(","));
-  //       Serial.print(yaw, 1);
+       // DEBUG
+       Serial.print(roll, 1);
+       Serial.print(F(","));
+       Serial.print(pitch, 1);
+       Serial.print(F(","));
+       Serial.print(yaw, 1);
     
-  //       Serial.println();
-  //       // END DEBUG
+       Serial.println();
+       // END DEBUG
 
-  //       // !! Only considers the pitch but can be adapted to take everything into account
-  //       // it also depends on the placement of the board
-  //       sprintf(imu, "%g", pitch);
-  //       strcat(imu, "_IMU\n");
-  //       SerialBT.print(imu);
+       // !! Only considers the pitch but can be adapted to take everything into account
+       // it also depends on the placement of the board
+       sprintf(imu, "%g", pitch);
+       strcat(imu, "_IMU\n");
+       SerialBT.print(imu);
 
-  //   }
-  // }
+      
+    }
+    prev_IMU = now_IMU;
+  }
 
   // ------------------------------------------
   // EMG 
   now_EMG = micros();
-  if (now_EMG - prev_EMG >= 5000){
+  if (now_EMG - prev_EMG >= 100000){
+      Serial.println("EMG");
       value = analogRead(EMG_PIN);
       sprintf(emg, "%g", value);
       strcat(emg, "_EMG\n");
