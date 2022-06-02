@@ -22,7 +22,7 @@ from std_msgs.msg import Float32MultiArray, Float32, Int32
 # ==========================================================
 # Some constants
 
-COM_PORT   = "/dev/rfcomm0"
+COM_PORT   = "COM9"
 BAUDRATE   = 115200
 ENCODING   = "ascii"
 PARSE_CHAR = "_"
@@ -94,6 +94,8 @@ def retrieve_data(listener):
 
             elif (msg_type == "EMG\n"):
                 # convert string to float
+                print(value, msg_type)
+
                 value = float(value)
                 process_EMG(value)
                 

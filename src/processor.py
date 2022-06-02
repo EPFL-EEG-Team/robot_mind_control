@@ -35,19 +35,19 @@ from std_msgs.msg import Float32MultiArray, Float32, Int32
 
 # ------------------------------------------
 # Bluetooth
-COM_PORT   = "/dev/rfcomm1"
+COM_PORT   = "COM12"
 BAUDRATE   = 9600
 
 # ------------------------------------------
 # EEG
 list_types = ['Relax', 'Focus']
 NUM_TRIALS = 3
-NUM_ITER_PER_TYPE = 60 
+NUM_ITER_PER_TYPE = 40  #TODO put back to 60
 
 baseline_frames = NUM_TRIALS * len(list_types) * NUM_ITER_PER_TYPE
 
 #Speed change delta
-delta_speed = 1
+delta_speed = 5
 
 # Fast-Fourier Transform
 length  = 99

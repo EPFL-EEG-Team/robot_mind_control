@@ -56,6 +56,7 @@ SoftwareSerial Bluetooth(TX, RX);
 String rawData = "";
 int data;
 String mode;
+String prevMode;
 char read                    = 0;
 int r = 0;
 int valid_data = 0;
@@ -79,6 +80,7 @@ PWMServo servo;
 void setup() {
 
     Serial.begin(115200);
+    Serial.println("salut monde");
     Bluetooth.begin(9600);
 
     // motor
@@ -115,16 +117,14 @@ void changeSpeed(int speed) {
     digitalWrite(MOTOR_IN2, HIGH);
     if (speed == 0) {
       MOTOR_SPEED = 0;
+    }else if (speed <= -200) {
+      MOTOR_SPEED = 200;
     } else {
       MOTOR_SPEED = -speed;
     }
   } else if (speed >= 200) {
     digitalWrite(MOTOR_IN1, HIGH);
     digitalWrite(MOTOR_IN2, LOW);
-    MOTOR_SPEED = 200;
-  } else if (speed <= -200) {
-    digitalWrite(MOTOR_IN1, LOW);
-    digitalWrite(MOTOR_IN2, HIGH);
     MOTOR_SPEED = 200;
   } else {
     digitalWrite(MOTOR_IN1, HIGH);
@@ -135,8 +135,6 @@ void changeSpeed(int speed) {
 }
 
 void loop() {
-  digitalWrite(MOTOR_IN1, LOW); // Direction is forward
-  digitalWrite(MOTOR_IN2, HIGH);
 
   // check if data is available
 
@@ -145,6 +143,7 @@ void loop() {
     char a = Bluetooth.read();
     rawData.concat(a);
     r += 1;
+    prevMode = String(mode);
     if (r == 13){
       r = 0;
       mode = rawData.substring(0, 3);
@@ -154,7 +153,7 @@ void loop() {
     }
     
     Serial.println(mode);
-    Serial.println(data);
+    //Serial.println(data);
     
     if (mode == "EEG") {
 //      Serial.println("debug");
@@ -164,15 +163,23 @@ void loop() {
         changeSpeed(-data);
       }  
     } else if (mode.equals("EMG")) {
-
-      if (state == STOP) {
-        state = FORWARD;
-      } else if (state == FORWARD) {
-        state = BACKWARD;
-      } else if (state == BACKWARD) {
-        state = STOP;
-        changeSpeed(0); 
-      } 
+      if (!prevMode.equals("EMG")) {
+        if (state == STOP) {
+          state = FORWARD;
+          digitalWrite(MOTOR_IN1, 1);
+          digitalWrite(MOTOR_IN2, 0); 
+        } else if (state == FORWARD) {
+          state = BACKWARD;
+          digitalWrite(MOTOR_IN1, 0);
+          digitalWrite(MOTOR_IN2, 1);
+        } else if (state == BACKWARD) {
+          state = STOP;
+          changeSpeed(0); 
+        } 
+        Serial.println(state);
+      }
+      
+      
     } else if (mode.equals("IMU")) {
       Serial.println("IMU");
       
@@ -199,8 +206,4 @@ void loop() {
     }
     
   }
-  
-
 }
-
-
