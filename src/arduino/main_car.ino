@@ -183,10 +183,10 @@ void loop() {
     } else if (mode.equals("IMU")) {
       Serial.println("IMU");
       
-      if (data < -40) {
+      if (data < -20) {
 //        Serial.println("turning left");
         turnLeft();
-      } else if (data > 40) {
+      } else if (data > 20) {
         turnRight();  
       } else {
         goStraight();  
